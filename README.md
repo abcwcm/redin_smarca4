@@ -9,4 +9,4 @@ Scripts related to the analysis of single cell transcriptomic data by Redin et a
 * Processed object (normalized counts and psedotime profiles) can be downloaded from [**Ireland et al.**]
 
 ## DATA ANALYSIS
-Plots number [X] were generated using [pseudotime_data.Rmd] script. 
+Plots number [X] were generated using [pseudotime_data.Rmd] (https://github.com/abcwcm/redin_smarca4/blob/main/analysis_scripts/pseudotime_data.Rmd) script. 
