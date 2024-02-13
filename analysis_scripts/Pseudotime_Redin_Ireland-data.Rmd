@@ -49,122 +49,9 @@ library(tidyr)
 pseudotime_object <- readRDS("/local/storage/maa7095/Raw_data_projects/scRNAseq_projects/Redin_SCLC/Ireland_Fig4D_RPM_Tumors_Timepoints_OrderedMonocle.rds")
 ```
 
-```{r}
-genes_to_plot <- c("Myc","Mycl","Smarca2","Smarca4", "Yap1","Ascl1","Neurod1","Nrg1","Trp63","Egfr","Erbb3","Erbb2","Sox2","Insm1","B2m","Foxa2","Myt1","Nrsn1","Rtn1","Srrm4","Rest")
-#Krt5 doenst show expression in cell lines.
-```
-
 
 Pseudotime is an abstract unit of progress: it's simply the distance between a cell and the start of the trajectory, measured along the shortest path. The trajectory's total length is defined in terms of the total amount of transcriptional change that a cell undergoes as it moves from the starting state to the end state.
 
-# Expression profile in pseudotime coordinates for time points 4,7,11,14, 17 and 21 days with 0s removed. {.tabset}
-
-```{r}
-time_interest <- c(4,7,11,14, 17,21)
-#colored expression by log10(value + 0.1)
-
-
-expression_cells_nozeros <- function(object, gene){
-  plot_interest <-  plot_cell_trajectory(object, markers = gene,  use_color_gradient = T) + facet_wrap(~time, nrow = 1)
-plot_interest$data <- plot_interest$data %>% filter(time %in% time_interest)
-plot_interest$data <- plot_interest$data %>% filter(value > 0)
-pdf(file = paste0("/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_analysis/Ireland_analysis/plots_pdf/new_script/Exp_cell_lines_0s_removed/",gene, ".pdf") ,   # The directory you want to save the file in
-    width = 10, # The width of the plot in inches
-    height = 10) # The height of the plot in inches
-plot2 <- plot_interest +  scale_colour_gradient(low = "black", high = "green") +labs(color = "Expression") + theme(legend.key.size = unit(1, "cm"))
-
-print(plot2)
-
-dev.off()
-} 
-```
-
-```{r}
-for (gene in genes_to_plot) {
-  expression_cells_nozeros(pseudotime_object, gene)
-}
-```
-
-
-# {-}
-
-
-# Expression profile in pseudotime coordinates for time points 4,7,11,14, 17 and 21 days with 0s {.tabset}
-
-```{r}
-time_interest <- c(4,7,11,14, 17,21)
-#colored expression by log10(value + 0.1)
-expression_cells <- function(object, gene){
-  plot_interest <-  plot_cell_trajectory(object, markers = gene,  use_color_gradient = T) + facet_wrap(~time, nrow = 1)
-plot_interest$data <- plot_interest$data %>% filter(time %in% time_interest)
-
-subset_df <- plot_interest$data %>% filter(value>0)
-  subset_df$new_val <- log10(subset_df$value + 0.1)
-  pdf(file = paste0("/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_analysis/Ireland_analysis/plots_pdf/new_script/Exp_cell_lines/",gene, ".pdf") ,  # The directory you want to save the file in
-    width = 10, # The width of the plot in inches
-    height = 10) # The height of the plot in inches
-  plot2 <- plot_interest + 
-    geom_point(data = subset_df, aes(x = data_dim_1, y = data_dim_2, colour = new_val)) + 
-    scale_colour_gradient(low = "black", high = "green") + 
-    labs(color = "Expression") + 
-    theme(legend.key.size = unit(1, "cm"))
-  
-  print(plot2)
-  dev.off()
-} 
-```
-
-```{r}
-for (gene in genes_to_plot) {
-  expression_cells(pseudotime_object, gene)
-}
-```
-
-# {-}
-
-# NE profile in pseudotime coordinates for time points 4,7,11,14, 17 and 21 days with 0s removed {.tabset}
-
-```{r}
-time_interest <- c(4,7,11,14, 17,21)
-#colored expression by log10(value + 0.1)
-NE_pseudotime_gene <- function(object, gene){
-  plot_interest <-  plot_cell_trajectory(object, markers = gene,  use_color_gradient = F, color_by = "NE_spearman",) + facet_wrap(~time, nrow = 1)
-  plot_interest$data <- plot_interest$data %>% filter(time %in% time_interest)
-  plot_interest$data <- plot_interest$data %>% filter(value > 0)
-  plot_interest$data <-  plot_interest$data %>% drop_na(NE_spearman)
-  plot_interest$mapping$size <- NULL
-  pdf(file = paste0("/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_analysis/Ireland_analysis/plots_pdf/new_script/NE_cell_lines_0s_removed/",gene, ".pdf") ,  # The directory you want to save the file in
-    width = 10, # The width of the plot in inches
-    height = 10) # The height of the plot in inches
-  plot2 <- plot_interest +  scale_colour_gradient(low = "black", high = "brown3") +labs(color = "NE score")  +ggtitle(paste0(gene))  + theme(legend.key.size = unit(1, "cm"))
-  print(plot2)
-  dev.off()
-}
-```
-
-```{r}
-for (gene in genes_to_plot) {
-  NE_pseudotime_gene(pseudotime_object, gene)
-}
-```
-
-
-## {-}
-
-## Smarca4 all time points together with 0s removed.
-
-```{r, eval=F}
-time_interest <- c(4,7,11,14, 17,21)
-#colored expression by log10(value + 0.1)
-plot_smarca4_ne <-  plot_cell_trajectory(pseudotime_object, markers = "Smarca4",  use_color_gradient = F, color_by = "NE_spearman")
-  plot_smarca4_ne$data <- plot_smarca4_ne$data %>% filter(time %in% time_interest)
-  plot_smarca4_ne$data <- plot_smarca4_ne$data %>% filter(value > 0)
-  plot_smarca4_ne$data <-  plot_smarca4_ne$data %>% drop_na(NE_spearman)
-  plot_smarca4_ne$mapping$size <- NULL
-  plot_smarca4_ne +  scale_colour_gradient(low = "black", high = "brown3") +labs(color = "NE score")  +ggtitle("Smarca4") + theme(legend.key.size = unit(1, "cm"))
-
-```
-# {-}
 
 ```{r}
 genes_to_plot <- c("Myc","Mycl","Smarca2","Smarca4", "Yap1","Ascl1","Neurod1","Nrg1","Egfr","Erbb3","Erbb2","Sox2","Insm1","B2m","Foxa2","Myt1","Nrsn1","Rtn1","Srrm4","Rest")
@@ -173,7 +60,7 @@ genes_to_plot <- c("Myc","Mycl","Smarca2","Smarca4", "Yap1","Ascl1","Neurod1","N
 
 
 
-# Expression profile in pseudotime coordinates for time points RPM1, RPM2, RPM3 and RPM4 with 0s removed. {.tabset}
+# Expression profile in pseudotime coordinates for time points RPM1, RPM2, RPM3 and RPM4 with cells with no expression removed. {.tabset}
 
 ```{r}
 time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
@@ -200,7 +87,7 @@ for (gene in genes_to_plot) {
 # {-}
 
 
-# Expression profile in pseudotime coordinates for time points RPM1, RPM2, RPM3 and RPM4 with 0s. {.tabset}
+# Expression profile in pseudotime coordinates for time points RPM1, RPM2, RPM3 and RPM4. {.tabset}
 
 ```{r}
 time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
@@ -232,38 +119,6 @@ for (gene in genes_to_plot) {
 
 # {-}
 
-# NE profile in pseudotime coordinates for time points RPM1, RPM2, RPM3 and RPM4 with 0s removed. {.tabset}
-
-```{r}
-time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
-#we plot here log10(value + 0.1)
-NE_pseudotime_gene_tumors <- function(object, gene){
-  plot_interest <-  plot_cell_trajectory(object, markers = gene,  use_color_gradient = F, color_by = "NE_spearman") + facet_wrap(~time, nrow = 1)
-  plot_interest$data <- plot_interest$data %>% filter(time %in% time_interest)
-  plot_interest$data <- plot_interest$data %>% filter(value > 0)
-  plot_interest$data <-  plot_interest$data %>% drop_na(NE_spearman)
-  plot_interest$mapping$size <- NULL
-  
-    pdf(file = paste0("/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_analysis/Ireland_analysis/plots_pdf/new_script/NE_tumors_0s_removed/",gene, ".pdf") ,  # The directory you want to save the file in
-    width = 10, # The width of the plot in inches
-    height = 10) # The height of the plot in inches
-
-  plot2 <- plot_interest +  scale_colour_gradient(low = "black", high = "brown3") +labs(color = "NE score")  +ggtitle(paste0(gene))+ theme(legend.key.size = unit(1, "cm"))
-  
-  print(plot2)
-  dev.off()
-}
-```
-
-
-```{r}
-for (gene in genes_to_plot) {
-  NE_pseudotime_gene_tumors(pseudotime_object, gene)
-}
-```
-
-## {-}
-
 ## NE profile for each RPM.
 ```{r}
 time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
@@ -281,8 +136,6 @@ time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
   dev.off()
 
 ```
-
-
 
 # {-}
 
@@ -328,7 +181,7 @@ saveRDS(RPM_Ireland, "seurat_RPM_Ireland.rds")
 ```
 
 ```{r}
-#;load R
+#load R
 RPM_Ireland <- readRDS("seurat_RPM_Ireland.rds")
 ```
 
@@ -359,7 +212,7 @@ smrca4_expr <- as.data.frame(RPM_Ireland["Smarca4",]@assays$RNA@layers$data)
 names(smrca4_expr) <- "Norm_exp"
 smrca4_expr$real_Barcode <- colnames(RPM_Ireland)
 smrca4_expr <- join(smrca4_expr,tsne_ireland, type="inner")
-#to color we are doing log10(value + 0.1) as seen in the monocle package
+#to color cells log10(value + 0.1) as seen in the monocle package
 smrca4_expr$SMARCA4 <- log10(smrca4_expr$Norm_exp + 0.1)
 ```
 
@@ -414,7 +267,7 @@ dev.off()
 
 # {-}
 
-Save sSmarca4 values and NE_spearman values.
+Save Smarca4 values and NE_spearman values.
 ```{r}
 sub_metadata_rpm <- metadata_rpm %>% select(real_Barcode, NE_spearman, time)
 big_smarca_table <- join(smrca4_expr, sub_metadata_rpm, type = "inner")
