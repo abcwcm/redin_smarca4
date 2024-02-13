@@ -45,7 +45,7 @@ library(tidyr)
 
 
 ```{r}
-#load both objects from https://duke.app.box.com/s/xof67knrdpf21q89tysj674tddxfsyke
+#load objects
 pseudotime_object <- readRDS("/local/storage/maa7095/Raw_data_projects/scRNAseq_projects/Redin_SCLC/Ireland_Fig4D_RPM_Tumors_Timepoints_OrderedMonocle.rds")
 ```
 
