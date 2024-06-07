@@ -26,7 +26,6 @@ knitr::opts_knit$set(progress=F,verbose=FALSE)
 #Libraries needed for the analysis
 require(dplyr)
 require(base)
-require(Seurat)
 require(patchwork)
 require(stringr)
 require(plyr)
@@ -34,23 +33,18 @@ require(data.table)
 require(ggplot2)
 require(Matrix)
 library(knitr)
-library(UCell)
-library(clusterProfiler)
-library(msigdbr)
 library(monocle)
-library(Seurat)
-library(fgsea)
 library(tidyr)
 ```
 
 
 ```{r}
-#load objects
+#load both objects from https://duke.app.box.com/s/xof67knrdpf21q89tysj674tddxfsyke
 pseudotime_object <- readRDS("/local/storage/maa7095/Raw_data_projects/scRNAseq_projects/Redin_SCLC/Ireland_Fig4D_RPM_Tumors_Timepoints_OrderedMonocle.rds")
 ```
 
-
 Pseudotime is an abstract unit of progress: it's simply the distance between a cell and the start of the trajectory, measured along the shortest path. The trajectory's total length is defined in terms of the total amount of transcriptional change that a cell undergoes as it moves from the starting state to the end state.
+
 
 
 ```{r}
@@ -58,33 +52,6 @@ genes_to_plot <- c("Myc","Mycl","Smarca2","Smarca4", "Yap1","Ascl1","Neurod1","N
 #no expression of Trp63 and Krt5 in tumors
 ```
 
-
-
-# Expression profile in pseudotime coordinates for time points RPM1, RPM2, RPM3 and RPM4 with cells with no expression removed. {.tabset}
-
-```{r}
-time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
-#we plot here log10(value + 0.1)
-expression_tumors_nozero <- function(object, gene){
-  plot_interest <-  plot_cell_trajectory(object, markers = gene,  use_color_gradient = T) + facet_wrap(~time, nrow = 1)
-plot_interest$data <- plot_interest$data %>% filter(time %in% time_interest)
-plot_interest$data <- plot_interest$data %>% filter(value > 0)
-pdf(file = paste0("/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_analysis/Ireland_analysis/plots_pdf/new_script/Expr_tumors_0s_removed/",gene, ".pdf") ,  # The directory you want to save the file in
-    width = 10, # The width of the plot in inches
-    height = 10) # The height of the plot in inches
-plot2 <- plot_interest +  scale_colour_gradient(low = "black", high = "green") +labs(color = "Expression")  +ggtitle(paste0(gene))+ theme(legend.key.size = unit(1, "cm"))
-print(plot2)
-dev.off()
-}
-```
-
-```{r}
-for (gene in genes_to_plot) {
-  expression_tumors_nozero(pseudotime_object, gene)
-}
-```
-
-# {-}
 
 
 # Expression profile in pseudotime coordinates for time points RPM1, RPM2, RPM3 and RPM4. {.tabset}
@@ -103,7 +70,8 @@ subset_df <- plot_interest$data %>% filter(value>0)
 
   plot2 <- plot_interest + 
     geom_point(data = subset_df, aes(x = data_dim_1, y = data_dim_2, colour = new_val)) + 
-    scale_colour_gradient(low = "black", high = "green") + 
+    scale_color_gradient2(low="#d8b365", mid="#f5f5f5", high="#5ab4ac", 
+                         oob = scales::squish) +
     labs(color = "Expression") + 
     theme(legend.key.size = unit(1, "cm"))
   print(plot2)
@@ -119,6 +87,7 @@ for (gene in genes_to_plot) {
 
 # {-}
 
+
 ## NE profile for each RPM.
 ```{r}
 time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
@@ -130,12 +99,16 @@ time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
     width = 10, # The width of the plot in inches
     height = 10) # The height of the plot in inches
 
-  plot2 <- plot_interest_RPM +  scale_colour_gradient(low = "black", high = "brown3") +labs(color = "NE score") + theme(legend.key.size = unit(1, "cm"))
+  plot2 <- plot_interest_RPM +  scale_color_gradient2(low="#7fbf7b", mid="#f7f7f7", high="#af8dc3", 
+                         oob = scales::squish) + 
+    labs(color = "NE score") + theme(legend.key.size = unit(1, "cm"))
   
   print(plot2)
   dev.off()
 
 ```
+
+
 
 # {-}
 
@@ -212,7 +185,7 @@ smrca4_expr <- as.data.frame(RPM_Ireland["Smarca4",]@assays$RNA@layers$data)
 names(smrca4_expr) <- "Norm_exp"
 smrca4_expr$real_Barcode <- colnames(RPM_Ireland)
 smrca4_expr <- join(smrca4_expr,tsne_ireland, type="inner")
-#to color cells log10(value + 0.1) as seen in the monocle package
+#to color we are doing log10(value + 0.1) as seen in the monocle package
 smrca4_expr$SMARCA4 <- log10(smrca4_expr$Norm_exp + 0.1)
 ```
 
@@ -224,7 +197,10 @@ pdf(file ="/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_
  p1 <- ggplot(smrca4_expr) + geom_point(aes(x=tSNE_1, y=tSNE_2, color=SMARCA4)) 
   subset_df_smrca4_expr <- smrca4_expr %>% dplyr::filter(Norm_exp  > 0)
   p2 <- p1 + 
-    geom_point(data = subset_df_smrca4_expr, aes(x = tSNE_1, y = tSNE_2, colour = SMARCA4)) +   scale_colour_gradient(low = "black", high = "green") + theme(
+    geom_point(data = subset_df_smrca4_expr, aes(x = tSNE_1, y = tSNE_2, colour = SMARCA4)) +   
+    scale_color_gradient2(low="#d8b365", mid="#f5f5f5", high="#5ab4ac", 
+                         oob = scales::squish) +
+    theme(
   axis.title.y = element_text(size = rel(1.5)),
   axis.title.x = element_text(size = rel(1.5)),
   axis.text.y = element_text(size = 20),
@@ -251,7 +227,10 @@ metadata_rpm <- metadata_rpm %>% drop_na(NE_spearman)
 pdf(file ="/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_analysis/Ireland_analysis/plots_pdf/new_script/tSNE_RPM_NE.pdf",   # The directory you want to save the file in
     width = 10, # The width of the plot in inches
     height = 10) # The he
-NE_plot <- ggplot(metadata_rpm) + geom_point(aes(x=tSNE_1, y=tSNE_2, color=NE_spearman)) +  scale_colour_gradient(low = "black", high = "brown3") + theme(
+NE_plot <- ggplot(metadata_rpm) + geom_point(aes(x=tSNE_1, y=tSNE_2, color=NE_spearman)) +  
+  scale_color_gradient2(low="#7fbf7b", mid="#f7f7f7", high="#af8dc3", 
+                         oob = scales::squish) +
+  theme(
   axis.title.y = element_text(size = rel(1.5)),
   axis.title.x = element_text(size = rel(1.5)),
   axis.text.y = element_text(size = 20),
@@ -267,7 +246,7 @@ dev.off()
 
 # {-}
 
-Save Smarca4 values and NE_spearman values.
+Save sSmarca4 values and NE_spearman values.
 ```{r}
 sub_metadata_rpm <- metadata_rpm %>% select(real_Barcode, NE_spearman, time)
 big_smarca_table <- join(smrca4_expr, sub_metadata_rpm, type = "inner")
