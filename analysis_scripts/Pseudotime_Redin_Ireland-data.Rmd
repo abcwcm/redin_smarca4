@@ -35,6 +35,7 @@ require(Matrix)
 library(knitr)
 library(monocle)
 library(tidyr)
+library(Seurat)
 ```
 
 
@@ -70,7 +71,7 @@ subset_df <- plot_interest$data %>% filter(value>0)
 
   plot2 <- plot_interest + 
     geom_point(data = subset_df, aes(x = data_dim_1, y = data_dim_2, colour = new_val)) + 
-    scale_color_gradient2(low="#d8b365", mid="#f5f5f5", high="#5ab4ac", 
+    scale_color_gradient2(low="#c09231", mid="#f5f5f5", high="#17aa9e", 
                          oob = scales::squish) +
     labs(color = "Expression") + 
     theme(legend.key.size = unit(1, "cm"))
@@ -99,7 +100,7 @@ time_interest <- c("RPM1","RPM2", "RPM3", "RPM4")
     width = 10, # The width of the plot in inches
     height = 10) # The height of the plot in inches
 
-  plot2 <- plot_interest_RPM +  scale_color_gradient2(low="#7fbf7b", mid="#f7f7f7", high="#af8dc3", 
+  plot2 <- plot_interest_RPM +  scale_color_gradient2(low="#31c529", mid="#f7f7f7", high="#982bd9", 
                          oob = scales::squish) + 
     labs(color = "NE score") + theme(legend.key.size = unit(1, "cm"))
   
@@ -160,9 +161,11 @@ RPM_Ireland <- readRDS("seurat_RPM_Ireland.rds")
 
 
 
+
 # Two dimensionality plots. {.tabset}
 
 ## tSNE clustering for tumor RPM samples.
+
 ```{r}
 pdf(file ="/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_analysis/Ireland_analysis/plots_pdf/new_script/RPM_tsNE.pdf",   # The directory you want to save the file in
     width = 10, # The width of the plot in inches
@@ -198,7 +201,7 @@ pdf(file ="/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_
   subset_df_smrca4_expr <- smrca4_expr %>% dplyr::filter(Norm_exp  > 0)
   p2 <- p1 + 
     geom_point(data = subset_df_smrca4_expr, aes(x = tSNE_1, y = tSNE_2, colour = SMARCA4)) +   
-    scale_color_gradient2(low="#d8b365", mid="#f5f5f5", high="#5ab4ac", 
+    scale_color_gradient2(low="#c09231", mid="#f5f5f5", high="#17aa9e", 
                          oob = scales::squish) +
     theme(
   axis.title.y = element_text(size = rel(1.5)),
@@ -228,7 +231,7 @@ pdf(file ="/SSD/maa7095/scRNAseq/Resin_Esther_sc_small_cell_lung_cancer/SCLC_sc_
     width = 10, # The width of the plot in inches
     height = 10) # The he
 NE_plot <- ggplot(metadata_rpm) + geom_point(aes(x=tSNE_1, y=tSNE_2, color=NE_spearman)) +  
-  scale_color_gradient2(low="#7fbf7b", mid="#f7f7f7", high="#af8dc3", 
+  scale_color_gradient2(low="#31c529", mid="#f7f7f7", high="#982bd9", 
                          oob = scales::squish) +
   theme(
   axis.title.y = element_text(size = rel(1.5)),
